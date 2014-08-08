@@ -112,6 +112,7 @@ namespace {
         ptr_type it1  = ba::boyer_moore_search          (hBeg, hEnd, nBeg, nEnd);
         ptr_type it2  = ba::boyer_moore_horspool_search (hBeg, hEnd, nBeg, nEnd);
         ptr_type it3  = ba::knuth_morris_pratt_search   (hBeg, hEnd, nBeg, nEnd);
+        ptr_type it4  = ba::aho_corasick_search         (hBeg, hEnd, nBeg, nEnd);
         const difference_type dist = (it1 == hEnd) ? -1 : std::distance ( hBeg, it1 );
 
         std::cout << "(Pointers) Pattern is " << needle.length () << ", haysstack is " << haystack.length () << " chars long; " << std::endl;
@@ -131,6 +132,11 @@ namespace {
                     std::string ( "results mismatch between boyer-moore and knuth-morris-pratt search" ));
                 }
 
+            if ( it1 != it4 ) {
+                throw std::runtime_error ( 
+                    std::string ( "results mismatch between boyer-moore and aho-corasick search" ));
+                }
+
             }
 
         catch ( ... ) {
@@ -140,6 +146,7 @@ namespace {
             std::cout << "  bm:     " << std::distance ( hBeg, it1 ) << "\n";
             std::cout << "  bmh:    " << std::distance ( hBeg, it2 ) << "\n";
             std::cout << "  kpm:    " << std::distance ( hBeg, it3 )<< "\n";
+            std::cout << "  ac:     " << std::distance ( hBeg, it4 )<< "\n";
             std::cout << std::flush;
             throw ;
             }
@@ -163,6 +170,7 @@ namespace {
         ba::boyer_moore<pattern_type>          bm    ( nBeg, nEnd );
         ba::boyer_moore_horspool<pattern_type> bmh   ( nBeg, nEnd );
         ba::knuth_morris_pratt<pattern_type>   kmp   ( nBeg, nEnd );
+        ba::aho_corasick<pattern_type>         ac    ( nBeg, nEnd );
         
         iter_type it0  = std::search  (hBeg, hEnd, nBeg, nEnd);
         iter_type it1  = bm           (hBeg, hEnd);
@@ -171,7 +179,8 @@ namespace {
         iter_type rt1r = bm_r         (haystack);
         iter_type it2  = bmh          (hBeg, hEnd);
         iter_type it3  = kmp          (hBeg, hEnd);
-        const difference_type dist = it1 == hEnd ? -1 : std::distance ( hBeg, it1 );
+        iter_type it4  = ac           (hBeg, hEnd);
+        const difference_type dist = (it1 == hEnd) ? -1 : std::distance ( hBeg, it1 );
 
         std::cout << "(Objects) Pattern is " << needle.length () << ", haysstack is " << haystack.length () << " chars long; " << std::endl;
         try {
@@ -205,6 +214,11 @@ namespace {
                     std::string ( "results mismatch between boyer-moore and knuth-morris-pratt search" ));
                 }
 
+            if ( it1 != it4 ) {
+                throw std::runtime_error ( 
+                    std::string ( "results mismatch between boyer-moore and aho-corasick search" ));
+                }
+
             }
 
         catch ( ... ) {
@@ -212,11 +226,12 @@ namespace {
             std::cout << "Expected: " << expected << "\n";
             std::cout << "  std:    " << std::distance ( hBeg, it0 ) << "\n";
             std::cout << "  bm:     " << std::distance ( hBeg, it1 ) << "\n";
-            std::cout << "  bm(r1):  " << std::distance ( hBeg, it1r ) << "\n";
-            std::cout << "  bm(r2):  " << std::distance ( hBeg, rt1 ) << "\n";
-            std::cout << "  bm(r3):  " << std::distance ( hBeg, rt1r ) << "\n";
+            std::cout << "  bm(r1): " << std::distance ( hBeg, it1r ) << "\n";
+            std::cout << "  bm(r2): " << std::distance ( hBeg, rt1 ) << "\n";
+            std::cout << "  bm(r3): " << std::distance ( hBeg, rt1r ) << "\n";
             std::cout << "  bmh:    " << std::distance ( hBeg, it2 ) << "\n";
             std::cout << "  kpm:    " << std::distance ( hBeg, it3 )<< "\n";
+            std::cout << "  ac:     " << std::distance ( hBeg, it4 )<< "\n";
             std::cout << std::flush;
             throw ;
             }
