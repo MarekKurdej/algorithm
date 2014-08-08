@@ -7,6 +7,7 @@
     For more information, see http://www.boost.org
 */
 
+#include <boost/algorithm/searching/aho_corasick.hpp>
 #include <boost/algorithm/searching/boyer_moore.hpp>
 #include <boost/algorithm/searching/boyer_moore_horspool.hpp>
 #include <boost/algorithm/searching/knuth_morris_pratt.hpp>
@@ -23,7 +24,7 @@
 #include <string>
 
 typedef std::vector<std::string> vec;
-#define NUM_TRIES   100
+#define NUM_TRIES   3
 
 #define runOne(call, refDiff)   { \
     std::clock_t bTime, eTime;                              \
@@ -117,6 +118,8 @@ namespace {
         stdDiff = std::clock () - sTime;
         printRes ( "std::search", stdDiff, stdDiff );
 
+        runOne    ( aho_corasick_search,         stdDiff );
+        runObject ( aho_corasick,                stdDiff );
         runOne    ( boyer_moore_search,          stdDiff );
         runObject ( boyer_moore,                 stdDiff );
         runOne    ( boyer_moore_horspool_search, stdDiff );

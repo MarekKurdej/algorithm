@@ -30,7 +30,7 @@
 #include <queue>      // std::queue
 #include <utility>  // std::make_pair, std::pair
 
-#define  BOOST_ALGORITHM_AHO_CORASICK_DEBUG_HPP
+// #define  BOOST_ALGORITHM_AHO_CORASICK_DEBUG_HPP
 
 namespace boost { namespace algorithm {
 
@@ -64,14 +64,14 @@ namespace detail {
             }
         
 #ifdef BOOST_ALGORITHM_AHO_CORASICK_DEBUG_HPP
-        ac_trie(value_type const& v, bool endOfWord = false, pointer_type suffixNode = NULL, size_type nodeDepth = 0)
+        ac_trie(value_type const& v, bool endOfWord, pointer_type suffixNode = NULL, size_type nodeDepth = 0)
             : node_value(v),
               end_of_word(endOfWord),
               suffix_node(suffixNode),
               node_depth(nodeDepth) {
             }
 #else
-        ac_trie(bool endOfWord = false, pointer_type suffixNode = NULL, size_type nodeDepth = 0)
+        ac_trie(bool endOfWord, pointer_type suffixNode = NULL, size_type nodeDepth = 0)
             : end_of_word(endOfWord),
               suffix_node(suffixNode),
               node_depth(nodeDepth) {
@@ -148,7 +148,9 @@ namespace detail {
                     // Enqueue child
                     pointer_type child = it->second.get();
                     typename iterator::value_type::first_type const& value = it->first;
+#ifdef BOOST_ALGORITHM_AHO_CORASICK_DEBUG_HPP
                     assert(child->value() == value);
+#endif
                     Q.push(child);
 #ifdef BOOST_ALGORITHM_AHO_CORASICK_DEBUG_HPP
                     std::cout << "Child:  '" << child->value() << "' - " << child->depth() << " (" << child << ")\n";
@@ -274,7 +276,11 @@ http://www-igm.univ-mlv.fr/~lecroq/string/node5.html
         aho_corasick ( patIter first, patIter last ) 
                 : pat_first ( first ), pat_last ( last ),
                   k_pattern_length ( std::distance ( pat_first, pat_last )),
+#ifdef BOOST_ALGORITHM_AHO_CORASICK_DEBUG_HPP
                   root(' ', false, &root) {
+#else
+                  root(false, &root) {
+#endif
             root.insert(pat_first, pat_last);
             }
             

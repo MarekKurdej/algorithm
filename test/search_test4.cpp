@@ -9,6 +9,7 @@
     Testing the range-based interfaces
 */
 
+#include <boost/algorithm/searching/aho_corasick.hpp>
 #include <boost/algorithm/searching/boyer_moore.hpp>
 #include <boost/algorithm/searching/boyer_moore_horspool.hpp>
 #include <boost/algorithm/searching/knuth_morris_pratt.hpp>
@@ -24,7 +25,7 @@
 #include <string>
 
 typedef std::vector<std::string> vec;
-#define NUM_TRIES   100
+#define NUM_TRIES   3
 
 #define runOne(call, refDiff)   { \
     res = boost::algorithm::call ( haystack, needle );  \
@@ -86,6 +87,8 @@ namespace {
             throw std::runtime_error ( "Unexpected result from std::search" );
             }
 
+        runOne    ( aho_corasick_search,         stdDiff );
+        runObject ( aho_corasick,                stdDiff );
         runOne    ( boyer_moore_search,          stdDiff );
         runObject ( boyer_moore,                 stdDiff );
         runOne    ( boyer_moore_horspool_search, stdDiff );

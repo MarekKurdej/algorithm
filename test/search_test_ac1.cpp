@@ -57,7 +57,9 @@ namespace {
         BOOST_REQUIRE(ptrie1);
         BOOST_CHECK_EQUAL(ptrie1->is_end_of_word(), true);
         BOOST_CHECK_EQUAL(ptrie1->depth(), expected_depth);
+#ifdef BOOST_ALGORITHM_AHO_CORASICK_DEBUG_HPP
         BOOST_CHECK_EQUAL(ptrie1->value(), expected_last_value);
+#endif
         
         if (expected_depth >= 2) {
             int half_length = expected_depth / 2;
@@ -65,7 +67,9 @@ namespace {
             BOOST_REQUIRE(cptrie2);
             BOOST_CHECK_EQUAL(cptrie2->is_end_of_word(), false);
             BOOST_CHECK_EQUAL(cptrie2->depth(), half_length);
+#ifdef BOOST_ALGORITHM_AHO_CORASICK_DEBUG_HPP
             BOOST_CHECK_EQUAL(cptrie2->value(), *(needle.begin() + half_length - 1));
+#endif
             }
         }
 
