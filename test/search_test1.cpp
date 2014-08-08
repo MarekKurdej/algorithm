@@ -7,6 +7,7 @@
     For more information, see http://www.boost.org
 */
 
+#include <boost/algorithm/searching/aho_corasick.hpp>
 #include <boost/algorithm/searching/boyer_moore.hpp>
 #include <boost/algorithm/searching/boyer_moore_horspool.hpp>
 #include <boost/algorithm/searching/knuth_morris_pratt.hpp>
@@ -35,6 +36,7 @@ namespace {
     void check_one_iter ( const Container &haystack, const std::string &needle, int expected ) {
         typedef typename Container::const_iterator iter_type;
         typedef std::string::const_iterator pattern_type;
+        typedef typename std::iterator_traits<iter_type>::difference_type difference_type;
 
         iter_type hBeg = haystack.begin ();
         iter_type hEnd = haystack.end ();
@@ -46,7 +48,8 @@ namespace {
         iter_type it1r = ba::boyer_moore_search          (haystack, nBeg, nEnd);
         iter_type it2  = ba::boyer_moore_horspool_search (hBeg, hEnd, nBeg, nEnd);
         iter_type it3  = ba::knuth_morris_pratt_search   (hBeg, hEnd, nBeg, nEnd);
-        const int dist = it1 == hEnd ? -1 : std::distance ( hBeg, it1 );
+        iter_type it4  = ba::aho_corasick_search         (hBeg, hEnd, nBeg, nEnd);
+        const difference_type dist = (it1 == hEnd) ? -1 : std::distance ( hBeg, it1 );
 
         std::cout << "(Iterators) Pattern is " << needle.length () << ", haysstack is " << haystack.length () << " chars long; " << std::endl;
         try {
@@ -65,9 +68,15 @@ namespace {
                     std::string ( "results mismatch between boyer-moore and boyer-moore-horspool search" ));
                 }
 
-            if ( it1 != it3 )
+            if ( it1 != it3 ) {
                 throw std::runtime_error ( 
                     std::string ( "results mismatch between boyer-moore and knuth-morris-pratt search" ));
+                }
+
+            if ( it1 != it4 ) {
+                throw std::runtime_error ( 
+                    std::string ( "results mismatch between boyer-moore and aho-corasick search" ));
+                }
 
             }
 
@@ -79,6 +88,7 @@ namespace {
             std::cout << "  bm(r):  " << std::distance ( hBeg, it1r ) << "\n";
             std::cout << "  bmh:    " << std::distance ( hBeg, it2 ) << "\n";
             std::cout << "  kpm:    " << std::distance ( hBeg, it3 )<< "\n";
+            std::cout << "  ac:     " << std::distance ( hBeg, it4 ) << "\n";
             std::cout << std::flush;
             throw ;
             }
@@ -91,6 +101,8 @@ namespace {
     template<typename Container>
     void check_one_pointer ( const Container &haystack, const std::string &needle, int expected ) {
         typedef const typename Container::value_type *ptr_type;
+        typedef typename std::iterator_traits<ptr_type>::difference_type difference_type;
+
         ptr_type hBeg = haystack.size () == 0 ? NULL : &*haystack.begin ();
         ptr_type hEnd = hBeg + haystack.size ();
         ptr_type nBeg = needle.size () == 0 ? NULL : &*needle.begin ();
@@ -100,7 +112,7 @@ namespace {
         ptr_type it1  = ba::boyer_moore_search          (hBeg, hEnd, nBeg, nEnd);
         ptr_type it2  = ba::boyer_moore_horspool_search (hBeg, hEnd, nBeg, nEnd);
         ptr_type it3  = ba::knuth_morris_pratt_search   (hBeg, hEnd, nBeg, nEnd);
-        const int dist = it1 == hEnd ? -1 : std::distance ( hBeg, it1 );
+        const difference_type dist = (it1 == hEnd) ? -1 : std::distance ( hBeg, it1 );
 
         std::cout << "(Pointers) Pattern is " << needle.length () << ", haysstack is " << haystack.length () << " chars long; " << std::endl;
         try {
@@ -114,9 +126,10 @@ namespace {
                     std::string ( "results mismatch between boyer-moore and boyer-moore-horspool search" ));
                 }
 
-            if ( it1 != it3 )
+            if ( it1 != it3 ) {
                 throw std::runtime_error ( 
                     std::string ( "results mismatch between boyer-moore and knuth-morris-pratt search" ));
+                }
 
             }
 
@@ -139,6 +152,7 @@ namespace {
     void check_one_object ( const Container &haystack, const std::string &needle, int expected ) {
         typedef typename Container::const_iterator iter_type;
         typedef std::string::const_iterator pattern_type;
+        typedef typename std::iterator_traits<iter_type>::difference_type difference_type;
 
         iter_type hBeg = haystack.begin ();
         iter_type hEnd = haystack.end ();
@@ -157,7 +171,7 @@ namespace {
         iter_type rt1r = bm_r         (haystack);
         iter_type it2  = bmh          (hBeg, hEnd);
         iter_type it3  = kmp          (hBeg, hEnd);
-        const int dist = it1 == hEnd ? -1 : std::distance ( hBeg, it1 );
+        const difference_type dist = it1 == hEnd ? -1 : std::distance ( hBeg, it1 );
 
         std::cout << "(Objects) Pattern is " << needle.length () << ", haysstack is " << haystack.length () << " chars long; " << std::endl;
         try {
@@ -186,9 +200,10 @@ namespace {
                     std::string ( "results mismatch between boyer-moore and boyer-moore-horspool search" ));
                 }
 
-            if ( it1 != it3 )
+            if ( it1 != it3 ) {
                 throw std::runtime_error ( 
                     std::string ( "results mismatch between boyer-moore and knuth-morris-pratt search" ));
+                }
 
             }
 

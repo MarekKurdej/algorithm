@@ -9,6 +9,7 @@
 
 #include <string>
 
+#include <boost/algorithm/searching/aho_corasick.hpp>
 #include <boost/algorithm/searching/boyer_moore.hpp>
 #include <boost/algorithm/searching/boyer_moore_horspool.hpp>
 #include <boost/algorithm/searching/knuth_morris_pratt.hpp>
@@ -23,6 +24,12 @@ BOOST_AUTO_TEST_CASE( test_main )
     std::string str ( "abc" );
     
 //  empty corpus, empty pattern
+    BOOST_CHECK ( 
+        boost::algorithm::aho_corasick_search (
+            cs.begin (), cs.end (), estr.begin (), estr.end ())
+        == cs.begin ()
+        );
+        
     BOOST_CHECK ( 
         boost::algorithm::boyer_moore_search (
             cs.begin (), cs.end (), estr.begin (), estr.end ())
@@ -43,6 +50,12 @@ BOOST_AUTO_TEST_CASE( test_main )
 
 //  empty corpus, non-empty pattern
     BOOST_CHECK ( 
+        boost::algorithm::aho_corasick_search (
+            estr.begin (), estr.end (), str.begin (), str.end ())
+        == estr.end ()
+        );
+
+    BOOST_CHECK ( 
         boost::algorithm::boyer_moore_search (
             estr.begin (), estr.end (), str.begin (), str.end ())
         == estr.end ()
@@ -61,6 +74,12 @@ BOOST_AUTO_TEST_CASE( test_main )
         );
 
 //  non-empty corpus, empty pattern
+    BOOST_CHECK ( 
+        boost::algorithm::aho_corasick_search (
+            str.begin (), str.end (), estr.begin (), estr.end ())
+        == str.begin ()
+        );
+
     BOOST_CHECK ( 
         boost::algorithm::boyer_moore_search (
             str.begin (), str.end (), estr.begin (), estr.end ())

@@ -24,42 +24,229 @@
 
 #include <boost/algorithm/searching/detail/debugging.hpp>
 
+#include <boost/shared_ptr.hpp>
+
+#include <map>      // std::map
+#include <queue>      // std::queue
+#include <utility>  // std::make_pair, std::pair
+
 #define  BOOST_ALGORITHM_AHO_CORASICK_DEBUG_HPP
 
 namespace boost { namespace algorithm {
 
 namespace detail {
     template <typename T>
-    struct ac_trie {
+    class ac_trie {
+    public:
+        typedef std::size_t size_type;
         typedef T value_type;
-        typedef std::list<ac_trie*> Container;
+    private:
+        typedef ac_trie* pointer_type;
+        typedef ac_trie const* const_pointer_type;
+        // typedef std::unique_ptr<ac_trie> unique_pointer_type;
+        // typedef boost::scoped_ptr<ac_trie> unique_pointer_type;
+        typedef boost::shared_ptr<ac_trie> shared_pointer_type;
+
+        typedef std::map<value_type, shared_pointer_type> Container;
         typedef typename Container::iterator iterator;
         typedef typename Container::const_iterator const_iterator;
-        
-        ac_trie(value_type const& v, bool endOfWord = false)
-            : value(v),
-              end_of_word(endOfWord) {
-        }
-        
-        // TODO: begin, end, cbegin, cend
 
-        const_iterator find_child(value_type const& v) {
-            return children.find(v);
-        }
+    public:
+        ac_trie() 
+#ifdef BOOST_ALGORITHM_AHO_CORASICK_DEBUG_HPP
+            : node_value(value_type()),
+#else
+            :
+#endif
+              end_of_word(false),
+              suffix_node(this), // or NULL
+              node_depth(0) {
+            }
         
+#ifdef BOOST_ALGORITHM_AHO_CORASICK_DEBUG_HPP
+        ac_trie(value_type const& v, bool endOfWord = false, pointer_type suffixNode = NULL, size_type nodeDepth = 0)
+            : node_value(v),
+              end_of_word(endOfWord),
+              suffix_node(suffixNode),
+              node_depth(nodeDepth) {
+            }
+#else
+        ac_trie(bool endOfWord = false, pointer_type suffixNode = NULL, size_type nodeDepth = 0)
+            : end_of_word(endOfWord),
+              suffix_node(suffixNode),
+              node_depth(nodeDepth) {
+            }
+#endif
+        
+        /// @returns a pair consisting of an iterator (pointer) to the last inserted node (or to the node that prevented the insertion) and a bool denoting whether the insertion took place.
+        template <typename patIter>
+        std::pair<pointer_type, bool> insert(patIter first, patIter last) {
+            BOOST_STATIC_ASSERT (( boost::is_same<typename std::iterator_traits<patIter>::value_type, value_type>::value ));
+            pointer_type prev = NULL;
+            pointer_type cur = this;
+            patIter it = first;
+            while (cur) {
+                if (it == last) {
+                    cur->set_end_of_word(true);
+                    return std::make_pair(cur, false);
+                    }
+                prev = cur;
+                cur = cur->find_child(*it++);
+                }
+            // prev is the node being the prefix [first, it)
+            // we have to add the remaining [it, last) nodes
+            cur = prev;
+            --it; // go back to the place that wasn't found
+            for (; it != last; ++it) {
+                cur = cur->add_child(*it);
+                }
+            cur->set_end_of_word(true);
+            
+            finalize_trie(); // TODO: lazy execution?
+            
+            return std::make_pair(cur, true);
+            }
+        
+        /// Finalizes the trie by updating suffix and output pointers
+        /// E.g. if the trie contains sequences {abc, bca, ca}, then
+        /// ab will point to b, abc to bc, bc to c, bca to ca, ca to a
+        /// because b is the longest suffix of ab existing in the trie
+        // TODO: output
+        void finalize_trie() {
+            pointer_type root = this;
+            root->set_suffix(root);
+            std::queue<pointer_type> Q;
+
+#ifdef BOOST_ALGORITHM_AHO_CORASICK_DEBUG_HPP
+            std::cout << "Root:   '" << root->value() << "' - " << root->depth() << " (" << root << ")\n";
+#endif
+            // Set suffixes of all root's children to root
+            // And add children to the queue
+            for (iterator it = children.begin(); it != children.end(); ++it) {
+                pointer_type child = it->second.get();
+                assert(child);
+#ifdef BOOST_ALGORITHM_AHO_CORASICK_DEBUG_HPP
+                std::cout << "Child:  '" << child->value() << "' - " << child->depth() << " (" << child << ")\n";
+#endif
+                child->set_suffix(root);
+                Q.push(child);
+                }
+
+            // Update suffixes of all nodes through a breadth-first search
+            while (Q.size() > 0) {
+                // Pop an element from the queue and process it
+                pointer_type current = Q.front();
+                Q.pop();
+                assert(current);
+#ifdef BOOST_ALGORITHM_AHO_CORASICK_DEBUG_HPP
+                std::cout << "Current: " << current->value() << "\n";
+#endif
+
+                // Update suffixes for all children of the currently process node
+                iterator itend = current->children.end();
+                for (iterator it = current->children.begin(); it != itend; ++it) {
+                    // Enqueue child
+                    pointer_type child = it->second.get();
+                    typename iterator::value_type::first_type const& value = it->first;
+                    assert(child->value() == value);
+                    Q.push(child);
+#ifdef BOOST_ALGORITHM_AHO_CORASICK_DEBUG_HPP
+                    std::cout << "Child:  '" << child->value() << "' - " << child->depth() << " (" << child << ")\n";
+#endif
+
+                    // Child's suffix will be a child of current's suffix if possible,
+                    // Otherwise, it will be a child of currents' (suffix's)+ suffix if possible.
+                    // Othwerise, root.
+                    pointer_type v = current->suffix();
+                    pointer_type found;
+                    // Find v with a child having a value 'value'
+                    while ((found = v->find_child(value)) == NULL) {
+                        v = v->suffix();
+                        assert(v);
+                        if (v == root) {
+                            found = root;
+                            break;
+                            }
+                        }
+                    assert(found);
+                    assert(found != child);
+#ifdef BOOST_ALGORITHM_AHO_CORASICK_DEBUG_HPP
+                    std::cout << "Suffix:  '" << found->value() << "' - " << found->depth() << " (" << found << ")\n";
+#endif
+                    child->set_suffix(found);
+                    // out(child) := out(child) \cup out(fail(child));
+                    // child->out = child->out + child->suffix->out;
+                    }
+                }
+            }
+
+        template <typename patIter>
+        const_pointer_type find(patIter first, patIter last) const {
+            BOOST_STATIC_ASSERT (( boost::is_same<typename std::iterator_traits<patIter>::value_type, value_type>::value ));
+            const_pointer_type cur = this;
+            while (cur) {
+                if (first == last) {
+                    break;
+                    }
+                cur = cur->find_child(*first++);
+                }
+            return cur;
+            }
+
+        pointer_type add_child(value_type const& v) {
+#ifdef BOOST_ALGORITHM_AHO_CORASICK_DEBUG_HPP
+            shared_pointer_type newChild(new ac_trie(v, false, suffix_node, depth() + 1));
+            std::cout << "New child of '" << this->value() << "' is '" << newChild->value() << "'\n";
+#else
+            shared_pointer_type newChild(new ac_trie(false, suffix_node, depth() + 1));
+#endif
+            children[v] = newChild;
+            return newChild.get();
+            }
+
+        pointer_type find_child(value_type const& v) const {
+            const_iterator found = children.find(v);
+            if (found != children.end()) {
+                return found->second.get();
+                }
+            return NULL;
+            }
+
+        void set_end_of_word(bool endOfWord) {
+            end_of_word = endOfWord;
+            }
+
         bool is_end_of_word() const {
             return end_of_word;
-        }
+            }
         
-        ac_trie* suffix() const {
-            return suffix;
-        }
+        pointer_type suffix() const {
+            return suffix_node;
+            }
+        
+        void set_suffix(pointer_type suffixNode) {
+            suffix_node = suffixNode;
+            }
+        
+        size_type depth() const {
+            return node_depth;
+            }
+
+#ifdef BOOST_ALGORITHM_AHO_CORASICK_DEBUG_HPP
+        value_type value() const {
+            return node_value;
+            }
+#endif
 
     private:
-        Container children; // TODO: use a map or sth else
-        value_type value;
+#ifdef BOOST_ALGORITHM_AHO_CORASICK_DEBUG_HPP
+        value_type node_value;
+#endif
+        Container children;
         bool end_of_word;
-        ac_trie* suffix;
+        pointer_type suffix_node;
+        // ac_trie* parent_node;
+        size_type node_depth;
     };
 } // namespace detail
 
@@ -81,11 +268,14 @@ http://www-igm.univ-mlv.fr/~lecroq/string/node5.html
     template <typename patIter>
     class aho_corasick {
         typedef typename std::iterator_traits<patIter>::difference_type difference_type;
-        typedef ac_trie node;
+        typedef typename std::iterator_traits<patIter>::value_type value_type;
+        typedef detail::ac_trie<value_type> node;
     public:
         aho_corasick ( patIter first, patIter last ) 
                 : pat_first ( first ), pat_last ( last ),
-                  k_pattern_length ( std::distance ( pat_first, pat_last )) {
+                  k_pattern_length ( std::distance ( pat_first, pat_last )),
+                  root(' ', false, &root) {
+            root.insert(pat_first, pat_last);
             }
             
         ~aho_corasick () {}
@@ -124,7 +314,7 @@ http://www-igm.univ-mlv.fr/~lecroq/string/node5.html
 /// \cond DOXYGEN_HIDE
         patIter pat_first, pat_last;
         const difference_type k_pattern_length;
-        node* root;
+        node root;
         
         /// \fn do_search ( corpusIter corpus_first, corpusIter corpus_last )
         /// \brief Searches the corpus for the pattern that was passed into the constructor
@@ -135,38 +325,39 @@ http://www-igm.univ-mlv.fr/~lecroq/string/node5.html
         ///
         template <typename corpusIter>
         corpusIter do_search ( corpusIter corpus_first, corpusIter corpus_last ) const {
-            typedef node::iterator iterator;
-            typedef node::const_iterator const_iterator;
+            // typedef typename node::iterator iterator;
+            // typedef typename node* iterator;
+            // typedef typename node::const_iterator const_iterator;
+            // typedef typename node const* const_iterator;
 
             corpusIter curPos = corpus_first;
-            const corpusIter lastPos = corpus_last;
-            asssert(root != nullptr);
-            node* curNode = root;
-#ifdef BOOST_ALGORITHM_AHO_CORASICK_DEBUG_HPP
-#endif
+            // const corpusIter lastPos = corpus_last;
+            node const* curNode = &root;
             while ( curPos < corpus_last ) {
-                const_iterator child = curNode->find_child(*curPos);
-                if (child != curNode->cend()) {
+#ifdef BOOST_ALGORITHM_AHO_CORASICK_DEBUG_HPP
+                std::cout << "At '" << *curPos << "'" << "... ";
+#endif
+                node const* child = curNode->find_child(*curPos);
+                if (child) {
+#ifdef BOOST_ALGORITHM_AHO_CORASICK_DEBUG_HPP
+                    std::cout << "Found." << " From '" << curNode->value() << "' to '" << child->value() << "'" << "\n";
+#endif
                     // there is a child node with this value
                     curNode = child;
                     if (curNode->is_end_of_word()) {
                         // output
-                        return curPos - depth(curNode);
+                        return curPos - curNode->depth() + 1;
                     }
                 } else {
                     // no child with the searched value
                     // let's look at the suffix node
                     node* suffix = curNode->suffix();
                     curNode = suffix;
-                    continue; // and if root?
+#ifdef BOOST_ALGORITHM_AHO_CORASICK_DEBUG_HPP
+                    std::cout << "Not found. Back to '" << curNode->value() << "'" << "\n";
+#endif
+                    // continue; // and if root?
                 }
-                // std::size_t j = k_pattern_length - 1;
-                // while ( pat_first [j] == curPos [j] ) {
-                // //  We matched - we're done!
-                    // if ( j == 0 )
-                        // return curPos;
-                    // j--;
-                    // }
                 ++curPos;
                 }
             
