@@ -11,6 +11,7 @@
 #include <boost/algorithm/searching/boyer_moore.hpp>
 #include <boost/algorithm/searching/boyer_moore_horspool.hpp>
 #include <boost/algorithm/searching/knuth_morris_pratt.hpp>
+#include <boost/algorithm/searching/naive.hpp>
 
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
@@ -24,7 +25,7 @@
 #include <string>
 
 typedef std::vector<std::string> vec;
-#define NUM_TRIES   3
+#define NUM_TRIES   100
 
 #define runOne(call, refDiff)   { \
     std::clock_t bTime, eTime;                              \
@@ -126,6 +127,8 @@ namespace {
         runObject ( boyer_moore_horspool,        stdDiff );
         runOne    ( knuth_morris_pratt_search,   stdDiff );
         runObject ( knuth_morris_pratt,          stdDiff );
+        runOne    ( naive_search,                stdDiff );
+        runObject ( naive,                       stdDiff );
         }
     }
 
