@@ -24,13 +24,27 @@
 
 #include <boost/algorithm/searching/detail/debugging.hpp>
 
+// #define BOOST_ALGORITHM_AHO_CORASICK_UNIQUE_PTR
+// #define BOOST_ALGORITHM_AHO_CORASICK_UNORDERED_MAP
+
+#ifdef BOOST_ALGORITHM_AHO_CORASICK_UNIQUE_PTR
+// #include <boost/move/move.hpp>      // boost::move
+// #include <boost/scoped_ptr.hpp>     // boost::scoped_ptr
+#include <algorithm>                // std::move
+#include <memory>                   // std::unique_ptr
+#else
 #include <boost/shared_ptr.hpp>
+#endif
 
-#include <map>      // std::map
-#include <queue>      // std::queue
-#include <utility>  // std::make_pair, std::pair
+#ifdef BOOST_ALGORITHM_AHO_CORASICK_UNORDERED_MAP
+#include <unordered_map>    // std::unordered_map
+#else
+#include <map>              // std::map
+#endif
+#include <queue>            // std::queue
+#include <utility>          // std::make_pair, std::pair
 
-// #define  BOOST_ALGORITHM_AHO_CORASICK_DEBUG_HPP
+// #define BOOST_ALGORITHM_AHO_CORASICK_DEBUG_HPP
 
 namespace boost { namespace algorithm {
 
@@ -43,11 +57,23 @@ namespace detail {
     private:
         typedef ac_trie* pointer_type;
         typedef ac_trie const* const_pointer_type;
-        // typedef std::unique_ptr<ac_trie> unique_pointer_type;
+#ifdef BOOST_ALGORITHM_AHO_CORASICK_UNIQUE_PTR
+        typedef std::unique_ptr<ac_trie> unique_pointer_type;
         // typedef boost::scoped_ptr<ac_trie> unique_pointer_type;
+#   ifdef BOOST_ALGORITHM_AHO_CORASICK_UNORDERED_MAP
+        typedef std::unordered_map<value_type, unique_pointer_type> Container;
+#   else
+        typedef std::map<value_type, unique_pointer_type> Container;
+#   endif
+#else
         typedef boost::shared_ptr<ac_trie> shared_pointer_type;
-
+#   ifdef BOOST_ALGORITHM_AHO_CORASICK_UNORDERED_MAP
+        typedef std::unordered_map<value_type, shared_pointer_type> Container;
+#   else
         typedef std::map<value_type, shared_pointer_type> Container;
+#   endif
+#endif
+
         typedef typename Container::iterator iterator;
         typedef typename Container::const_iterator const_iterator;
 
@@ -197,18 +223,24 @@ namespace detail {
 
         pointer_type add_child(value_type const& v) {
 #ifdef BOOST_ALGORITHM_AHO_CORASICK_DEBUG_HPP
-            shared_pointer_type newChild(new ac_trie(v, false, suffix_node, depth() + 1));
+            pointer_type newChild = new ac_trie(v, false, suffix_node, depth() + 1);
             std::cout << "New child of '" << this->value() << "' is '" << newChild->value() << "'\n";
 #else
-            shared_pointer_type newChild(new ac_trie(false, suffix_node, depth() + 1));
+            pointer_type newChild = new ac_trie(false, suffix_node, depth() + 1);
 #endif
-            children[v] = newChild;
-            return newChild.get();
+#ifdef BOOST_ALGORITHM_AHO_CORASICK_UNIQUE_PTR
+            // children[v] = boost::move( unique_pointer_type(newChild) );
+            children[v] = std::move( unique_pointer_type(newChild) );
+#else
+            children[v] = shared_pointer_type(newChild);
+#endif
+            return newChild;
             }
 
         pointer_type find_child(value_type const& v) const {
             const_iterator found = children.find(v);
-            if (found != children.end()) {
+            const_iterator const chend = children.end();
+            if (found != chend) {
                 return found->second.get();
                 }
             return NULL;

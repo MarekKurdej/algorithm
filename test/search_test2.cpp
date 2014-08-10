@@ -24,7 +24,7 @@
 #include <vector>
 
 typedef std::vector<char> vec;
-#define NUM_TRIES   100
+#define NUM_TRIES   10
 
 #define runOne(call, refDiff)   { \
     std::clock_t bTime, eTime;                              \

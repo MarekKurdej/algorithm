@@ -19,7 +19,6 @@ using namespace boost::assign; // bring 'list_of()' into scope
 #include <string>
 #include <vector>
 
-
 namespace ba = boost::algorithm;
 
 namespace {
