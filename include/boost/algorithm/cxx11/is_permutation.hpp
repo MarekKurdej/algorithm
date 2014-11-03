@@ -5,12 +5,12 @@
    file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 */
 
-/// \file  is_permutation.hpp
+/// \file  cxx11/is_permutation.hpp
 /// \brief Is a sequence a permutation of another sequence
 /// \author Marshall Clow
 
-#ifndef BOOST_ALGORITHM_IS_PERMUTATION11_HPP
-#define BOOST_ALGORITHM_IS_PERMUTATION11_HPP
+#ifndef BOOST_ALGORITHM_CXX11_IS_PERMUTATION_HPP_INCLUDED
+#define BOOST_ALGORITHM_CXX11_IS_PERMUTATION_HPP_INCLUDED
 
 #include <algorithm>    // for std::less, tie, mismatch and is_permutation (if available)
 #include <utility>      // for std::make_pair
@@ -99,8 +99,8 @@ namespace detail {
 }
 /// \endcond
 
-/// \fn is_permutation ( ForwardIterator1 first, ForwardIterator1 last, ForwardIterator2 first2, BinaryPredicate p )
-/// \brief Tests to see if the sequence [first,last) is a permutation of the sequence starting at first2
+/// \fn is_permutation ( ForwardIterator1 first1, ForwardIterator1 last1, ForwardIterator2 first2, BinaryPredicate p )
+/// \brief Tests to see if the sequence [first1,last1) is a permutation of the sequence starting at first2
 ///
 /// \param first1   The start of the input sequence
 /// \param last1    One past the end of the input sequence
@@ -128,11 +128,11 @@ bool is_permutation ( ForwardIterator1 first1, ForwardIterator1 last1,
     return true;
 }
 
-/// \fn is_permutation ( ForwardIterator1 first, ForwardIterator1 last, ForwardIterator2 first2 )
-/// \brief Tests to see if the sequence [first,last) is a permutation of the sequence starting at first2
+/// \fn is_permutation ( ForwardIterator1 first1, ForwardIterator1 last1, ForwardIterator2 first2 )
+/// \brief Tests to see if the sequence [first1,last1) is a permutation of the sequence starting at first2
 ///
 /// \param first1   The start of the input sequence
-/// \param last2    One past the end of the input sequence
+/// \param last1    One past the end of the input sequence
 /// \param first2   The start of the second sequence
 /// \note           This function is part of the C++2011 standard library.
 ///  We will use the standard one if it is available,
@@ -186,4 +186,4 @@ is_permutation ( const Range &r, ForwardIterator first2, BinaryPredicate pred )
 
 }}
 
-#endif  // BOOST_ALGORITHM_IS_PERMUTATION11_HPP
+#endif  // BOOST_ALGORITHM_CXX11_IS_PERMUTATION_HPP_INCLUDED

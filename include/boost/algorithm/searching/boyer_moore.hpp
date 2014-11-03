@@ -52,10 +52,12 @@ Requirements:
         ** Hashable type (map-based skip table)
 */
 
+	/// TODO
     template <typename patIter, typename traits = detail::BM_traits<patIter> >
     class boyer_moore {
         typedef typename std::iterator_traits<patIter>::difference_type difference_type;
     public:
+		/// TODO
         boyer_moore ( patIter first, patIter last ) 
                 : pat_first ( first ), pat_last ( last ),
                   k_pattern_length ( std::distance ( pat_first, pat_last )),
@@ -68,7 +70,6 @@ Requirements:
             
         ~boyer_moore () {}
         
-        /// \fn operator ( corpusIter corpus_first, corpusIter corpus_last )
         /// \brief Searches the corpus for the pattern that was passed into the constructor
         /// 
         /// \param corpus_first The start of the data to search (Random Access Iterator)
@@ -91,7 +92,8 @@ Requirements:
         //  Do the search 
             return this->do_search   ( corpus_first, corpus_last );
             }
-            
+
+		/// TODO
         template <typename Range>
         typename boost::range_iterator<Range>::type operator () ( Range &r ) const {
             return (*this) (boost::begin(r), boost::end(r));

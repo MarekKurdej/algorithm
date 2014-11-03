@@ -5,12 +5,12 @@
    file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 */
 
-/// \file  is_permutation.hpp
+/// \file  cxx14/is_permutation.hpp
 /// \brief Is a sequence a permutation of another sequence (four iterator versions)
 /// \author Marshall Clow
 
-#ifndef BOOST_ALGORITHM_IS_PERMUTATION14_HPP
-#define BOOST_ALGORITHM_IS_PERMUTATION14_HPP
+#ifndef BOOST_ALGORITHM_CXX14_IS_PERMUTATION_HPP_INCLUDED
+#define BOOST_ALGORITHM_CXX14_IS_PERMUTATION_HPP_INCLUDED
 
 #include <algorithm>    // for std::less, tie, mismatch and is_permutation (if available)
 #include <utility>      // for std::make_pair
@@ -23,9 +23,9 @@
 namespace boost { namespace algorithm {
 
 #if __cplusplus <= 201103L
-/// \fn is_permutation ( ForwardIterator1 first, ForwardIterator1 last, 
+/// \fn is_permutation ( ForwardIterator1 first1, ForwardIterator1 last1, 
 ///                      ForwardIterator2 first2, ForwardIterator2 last2 )
-/// \brief Tests to see if the sequence [first,last) is a permutation of the sequence starting at first2
+/// \brief Tests to see if the sequence [first1,last1) is a permutation of the sequence starting at first2
 ///
 /// \param first1   The start of the input sequence
 /// \param last2    One past the end of the input sequence
@@ -51,10 +51,10 @@ bool is_permutation ( ForwardIterator1 first1, ForwardIterator1 last1,
         typename std::iterator_traits<ForwardIterator2>::iterator_category ());
 }
 
-/// \fn is_permutation ( ForwardIterator1 first, ForwardIterator1 last, 
+/// \fn is_permutation ( ForwardIterator1 first1, ForwardIterator1 last1, 
 ///                      ForwardIterator2 first2, ForwardIterator2 last2, 
-///                      BinaryPredicate p )
-/// \brief Tests to see if the sequence [first,last) is a permutation of the sequence starting at first2
+///                      BinaryPredicate pred )
+/// \brief Tests to see if the sequence [first1,last1) is a permutation of the sequence starting at first2
 ///
 /// \param first1   The start of the input sequence
 /// \param last1    One past the end of the input sequence
@@ -83,4 +83,4 @@ bool is_permutation ( ForwardIterator1 first1, ForwardIterator1 last1,
 
 }}
 
-#endif  // BOOST_ALGORITHM_IS_PERMUTATION14_HPP
+#endif  // BOOST_ALGORITHM_CXX14_IS_PERMUTATION_HPP_INCLUDED

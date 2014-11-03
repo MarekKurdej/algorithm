@@ -43,10 +43,12 @@ http://www-igm.univ-mlv.fr/%7Elecroq/string/node18.html
 
 */
 
+	/// TODO
     template <typename patIter, typename traits = detail::BM_traits<patIter> >
     class boyer_moore_horspool {
         typedef typename std::iterator_traits<patIter>::difference_type difference_type;
     public:
+		/// TODO
         boyer_moore_horspool ( patIter first, patIter last ) 
                 : pat_first ( first ), pat_last ( last ),
                   k_pattern_length ( std::distance ( pat_first, pat_last )),
@@ -64,12 +66,10 @@ http://www-igm.univ-mlv.fr/%7Elecroq/string/node18.html
             
         ~boyer_moore_horspool () {}
         
-        /// \fn operator ( corpusIter corpus_first, corpusIter corpus_last, Pred p )
         /// \brief Searches the corpus for the pattern that was passed into the constructor
         /// 
         /// \param corpus_first The start of the data to search (Random Access Iterator)
         /// \param corpus_last  One past the end of the data to search
-        /// \param p            A predicate used for the search comparisons.
         ///
         template <typename corpusIter>
         corpusIter operator () ( corpusIter corpus_first, corpusIter corpus_last ) const {
@@ -88,7 +88,8 @@ http://www-igm.univ-mlv.fr/%7Elecroq/string/node18.html
         //  Do the search 
             return this->do_search ( corpus_first, corpus_last );
             }
-            
+
+		/// TODO
         template <typename Range>
         typename boost::range_iterator<Range>::type operator () ( Range &r ) const {
             return (*this) (boost::begin(r), boost::end(r));

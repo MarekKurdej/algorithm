@@ -19,11 +19,14 @@ namespace boost { namespace algorithm {
 
 namespace detail {
 
+	/// TODO
     template <class T1, class T2>
     struct eq : public std::binary_function<T1, T2, bool> {
+		/// TODO
         bool operator () ( const T1& v1, const T2& v2 ) const { return v1 == v2 ;}
         };
-    
+
+	/// TODO
     template <class RandomAccessIterator1, class RandomAccessIterator2, class BinaryPredicate>
     bool equal ( RandomAccessIterator1 first1, RandomAccessIterator1 last1, 
                  RandomAccessIterator2 first2, RandomAccessIterator2 last2, BinaryPredicate pred,
@@ -36,6 +39,7 @@ namespace detail {
         return std::equal ( first1, last1, first2, pred );
     }
 
+	/// TODO
     template <class InputIterator1, class InputIterator2, class BinaryPredicate>
     bool equal ( InputIterator1 first1, InputIterator1 last1, 
                  InputIterator2 first2, InputIterator2 last2, BinaryPredicate pred,

@@ -34,15 +34,20 @@ namespace boost {
     // that compiles with VC++ 6.0 -- avoid the iterator_traits by
     // having comparison object over iterator, not over dereferenced value
 
+	/// TODO
     template <typename Iterator>
     struct less_over_iter {
+	  /// TODO
       bool operator()(Iterator const& it1,
                       Iterator const& it2) const { return *it1 < *it2; }
     };
 
+	/// TODO
     template <typename Iterator, class BinaryPredicate>
     struct binary_pred_over_iter {
+	  /// TODO
       explicit binary_pred_over_iter(BinaryPredicate const& p ) : m_p( p ) {}
+	  /// TODO
       bool operator()(Iterator const& it1,
                       Iterator const& it2) const { return m_p(*it1, *it2); }
     private:
@@ -51,6 +56,7 @@ namespace boost {
 
     // common base for the two minmax_element overloads
 
+	/// TODO
     template <typename ForwardIter, class Compare >
     std::pair<ForwardIter,ForwardIter>
     basic_minmax_element(ForwardIter first, ForwardIter last, Compare comp)
@@ -118,6 +124,7 @@ namespace boost {
 
   } // namespace detail
 
+  /// TODO
   template <typename ForwardIter>
   std::pair<ForwardIter,ForwardIter>
   minmax_element(ForwardIter first, ForwardIter last)
@@ -126,6 +133,7 @@ namespace boost {
              detail::less_over_iter<ForwardIter>() );
   }
 
+  /// TODO
   template <typename ForwardIter, class BinaryPredicate>
   std::pair<ForwardIter,ForwardIter>
   minmax_element(ForwardIter first, ForwardIter last, BinaryPredicate comp)

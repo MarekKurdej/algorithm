@@ -75,9 +75,6 @@ namespace boost { namespace algorithm {
     return (clamp) ( val, lo, hi, std::less<T>());
   } 
 
-/// \fn clamp_range ( InputIterator first, InputIterator last, OutputIterator out, 
-///       std::iterator_traits<InputIterator>::value_type const & lo, 
-///       std::iterator_traits<InputIterator>::value_type const & hi )
 /// \return clamp the sequence of values [first, last) into [ lo, hi ]
 /// 
 /// \param first The start of the range of values
@@ -117,9 +114,6 @@ namespace boost { namespace algorithm {
   } 
 
 
-/// \fn clamp_range ( InputIterator first, InputIterator last, OutputIterator out, 
-///       std::iterator_traits<InputIterator>::value_type const & lo, 
-///       std::iterator_traits<InputIterator>::value_type const & hi, Pred p )
 /// \return clamp the sequence of values [first, last) into [ lo, hi ]
 ///     using the comparison predicate p.
 /// 
@@ -130,8 +124,6 @@ namespace boost { namespace algorithm {
 /// \param hi    The upper bound of the range to be clamped to
 /// \param p     A predicate to use to compare the values.
 ///                 p ( a, b ) returns a boolean.
-
-///
   template<typename InputIterator, typename OutputIterator, typename Pred> 
   OutputIterator clamp_range ( InputIterator first, InputIterator last, OutputIterator out,
     typename std::iterator_traits<InputIterator>::value_type const & lo, 

@@ -48,6 +48,7 @@ namespace boost { namespace algorithm {
 struct hex_decode_error : virtual boost::exception, virtual std::exception {};
 struct not_enough_input : virtual hex_decode_error {};
 struct non_hex_input    : virtual hex_decode_error {};
+/// TODO
 typedef boost::error_info<struct bad_char_,char> bad_char;
 
 namespace detail {

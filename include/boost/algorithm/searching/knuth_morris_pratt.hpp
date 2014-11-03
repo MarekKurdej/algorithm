@@ -41,10 +41,12 @@ namespace boost { namespace algorithm {
     http://www.inf.fh-flensburg.de/lang/algorithmen/pattern/kmpen.htm
 */
 
+	/// TODO
     template <typename patIter>
     class knuth_morris_pratt {
         typedef typename std::iterator_traits<patIter>::difference_type difference_type;
     public:
+		/// TODO
         knuth_morris_pratt ( patIter first, patIter last ) 
                 : pat_first ( first ), pat_last ( last ), 
                   k_pattern_length ( std::distance ( pat_first, pat_last )),
@@ -61,12 +63,10 @@ namespace boost { namespace algorithm {
             
         ~knuth_morris_pratt () {}
         
-        /// \fn operator ( corpusIter corpus_first, corpusIter corpus_last, Pred p )
         /// \brief Searches the corpus for the pattern that was passed into the constructor
         /// 
         /// \param corpus_first The start of the data to search (Random Access Iterator)
         /// \param corpus_last  One past the end of the data to search
-        /// \param p            A predicate used for the search comparisons.
         ///
         template <typename corpusIter>
         corpusIter operator () ( corpusIter corpus_first, corpusIter corpus_last ) const {
@@ -83,7 +83,8 @@ namespace boost { namespace algorithm {
 
             return do_search   ( corpus_first, corpus_last, k_corpus_length );
             }
-    
+
+		/// TODO
         template <typename Range>
         typename boost::range_iterator<Range>::type operator () ( Range &r ) const {
             return (*this) (boost::begin(r), boost::end(r));
